@@ -42,12 +42,11 @@ func (b *bloom) Bytes() []byte {
 
 // Add adds `key` to the bloom filter.
 func (b *bloom) Add(key []byte) {
-	h := murmur3.Sum64(key)
-	h1 := h | 0xffffffff
-	h2 := h >> 31
+	h1 := murmur3.Sum32(key)
+	h2 := murmur3.Sum32WithSeed(key, h1)
 	// Mix hash according to Kirsch and Mitzenmacher
 	for i := 0; i < bloomHashes; i++ {
-		p := uint32(h1) % uint32(bloomBits)
+		p := h1 % uint32(bloomBits)
 		b.bits[p/8] |= (1 << (p % 8))
 		h1 += h2
 	}
@@ -55,11 +54,10 @@ func (b *bloom) Add(key []byte) {
 
 // Test returns whether `key` is found.
 func (b *bloom) Test(key []byte) bool {
-	h := murmur3.Sum64(key)
-	h1 := h | 0xffffffff
-	h2 := h >> 31
+	h1 := murmur3.Sum32(key)
+	h2 := murmur3.Sum32WithSeed(key, h1)
 	for i := 0; i < bloomHashes; i++ {
-		p := uint32(h1) % uint32(bloomBits)
+		p := h1 % uint32(bloomBits)
 		if b.bits[p/8]&(1<<(p%8)) == 0 {
 			return false
 		}

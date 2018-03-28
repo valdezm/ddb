@@ -39,8 +39,11 @@ func TestBasic(t *testing.T) {
 func TestPercentile(t *testing.T) {
 	var total, bad int
 	threshold := 0.01
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 50; i++ {
 		fp := runTrial(16000, t)
+		if fp > 2*threshold {
+			t.Errorf("Exceedingly bad FP rate: %v", fp)
+		}
 		if fp > threshold {
 			t.Logf("FP rate: %v", fp)
 			bad++
@@ -73,7 +76,7 @@ func runTrial(n int, t *testing.T) float64 {
 
 	// Validate random keys
 	var hits, total int
-	for i := 0; i < n; i++ {
+	for i := 0; i < 5000; i++ {
 		key := fmt.Sprint(rand.Int31())
 		if _, found := keys[key]; !found {
 			if b.Test([]byte(key)) {
