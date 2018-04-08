@@ -35,6 +35,12 @@ func newBloom() *bloom {
 	}
 }
 
+func newBloomFromBytes(b []byte) *bloom {
+	return &bloom{
+		bits: b,
+	}
+}
+
 // Bytes() returns the bytes backing the bloom filter.
 func (b *bloom) Bytes() []byte {
 	return b.bits
